@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+<body> 
+  <div class="main">
+    <div class="tab">
+      <div class="blank-space-left"></div>
+      <button class="tabButtons active" onclick="openTab(event, 'Admin')">Administration</button>
+      <button class="tabButtons" onclick="openTab(event, 'Form')">Formular</button>
+      <div class="blank-space-right"></div>
+    </div>
+    <div class="tab-view">
+      <div id="Admin" class="content-wrapper">
+        Formular name:  &nbsp; &nbsp;<input id="search-box" type="text" name="FormularName" > &nbsp; &nbsp;
+        <button class="search-button" onclick="searchFormulars()">Search</button>
+        <br>
+        <div id="formularData"></div>
+        <button id="saveButtonAdmin" class="save-button" onclick="saveFormularAdmin()">Save</button>
+      </div>
+      <div id="Form" class="content-wrapper">
+        Formular name: &nbsp; &nbsp;
+        <select id="name-formulars"></select> 
+        &nbsp; &nbsp; &nbsp;
+        Version:&nbsp; &nbsp;
+        <input id="version-box" type="text">&nbsp; &nbsp; &nbsp;
+        <button class="search-button" 
+        onclick="loadFormular(document.getElementById('name-formulars').options[document.getElementById('name-formulars').selectedIndex].text, document.getElementById('version-box').value)">Load</button>
+        <div id="formularVersionData"></div>
+        <button id="saveButtonForm" class="save-button" onclick="saveFormularForm()">Save</button>
+      </div> 
+    
+    </div>
+  </div>      
+  <template><img class="image-view" src="iconPlus.png" width="25px" height="25px" onclick="addRow()"></template>
+</body>
+</html>
+<script src="java.js"></script>
+<script src="front-end/front-end.js"></script>

@@ -1,0 +1,118 @@
+.main
+{
+    border: none;
+    margin: 5vh 5vw;
+    height: 90vh; 
+    width: 90vw; 
+}
+
+/* Style the tab */
+.tab {
+    overflow: hidden;
+    border: none;
+    background-color: white;
+    width: 100%;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+    background-color: gray;
+    float: left;
+    width: 130px;
+    height: 30px;
+    border: 2px solid black;
+    border-left: none;
+    cursor: pointer; 
+    transition: 0.2s;
+    font-size: 14px;
+    user-select: none;
+}
+.blank-space-left
+{
+    height: 28px;
+    float: left;
+    width : 2%;
+    border-bottom: 2px solid black;
+    border-right: 2px solid black;
+}
+
+.blank-space-right
+{
+    height: 28px;
+    float: left;
+    width: calc(98% - 268px);
+    border-bottom: 2px solid black;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    background-color:lightgray;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+    background-color: white;
+    border-bottom : none;
+    outline: none;
+}
+
+/* Style the tab content */
+.tab-view {
+    display: block;
+    width: calc(100% - 10px);
+    height: calc(100% - 30px);
+    border: 2px solid black;
+    border-top: none;
+}
+
+.content-wrapper{
+    padding: 5% 4%; 
+    position: relative;
+    height: 90%;
+    
+
+}
+
+#Admin.content-wrapper{
+  display: block;
+}
+
+#Form.content-wrapper{
+  display: none;
+}
+
+.content-wrapper #formularData{
+  padding: 4% 0%;
+}
+
+.content-wrapper #formularVersionData{
+  padding: 4% 0%;
+}
+
+.search-button{
+  width: 130px;
+}
+
+.save-button
+{
+  position: absolute;
+  bottom: 60px;
+  right: 15px;
+  width : 130px;
+  display:none;
+}
+
+.image-view{
+  display: inline-block;
+  cursor: pointer;
+}
+
+.input-error{
+  border-color: red;
+
+}
+
+#version-box
+{
+  width: 50px;
+}
