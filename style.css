@@ -64,7 +64,7 @@
     height: calc(100% - 30px);
     border: 2px solid black;
     border-top: none;
-    position: relative;
+    /*position: relative; */
     overflow-y: scroll;
 }
 
@@ -97,9 +97,9 @@
 
 .save-button
 {
-  position: absolute;
-  bottom: 60px;
-  right: 15px;
+  position: fixed;
+  bottom: 12vh;
+  right: 10vw;
   width : 130px;
   display:none;
 }
@@ -107,6 +107,12 @@
 .image-view{
   display: inline-block;
   cursor: pointer;
+  width: 24px;
+  height: 24px;
+  margin-left: 20px;
+  border: solid black 2px;
+  border-radius: 14px;
+  user-select: none;
 }
 
 .input-error{

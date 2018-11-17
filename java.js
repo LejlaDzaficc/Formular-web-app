@@ -12,7 +12,7 @@ var data = {
         {
           label: "Label 2",
           type: "RadioButton",
-          radioButtonLabels:[], 
+          radioButtonLabels:["married", "single", "complicated", "in relationship"], 
           restrictions:"None"
         }
       ]
@@ -39,7 +39,7 @@ var data = {
     [
       {
         version: "4",
-        formularName: "formular1",
+        formularName: "formular2",
         versionData: 
           [
             "lejla", true
@@ -85,6 +85,7 @@ function insertVersion(versionDataObject)
   data.versions.push(versionDataObject);
 }
 
+
 function showFormularData(formular) 
 {
   var formularDataElement = document.getElementById("formularData");
@@ -98,6 +99,7 @@ function showFormularData(formular)
       setPlusButton(rowDiv);
     formularDataElement.appendChild(rowDiv);
     checkSelectedOptions(rowDiv.childNodes[3].childNodes[0]);
+    fillRadioButtonLabels(formular.rows[i].radioButtonLabels, rowDiv.childNodes[3]);
   }
   formularDataElement.childNodes.forEach(function(element){
     element.childNodes[3].childNodes[0].onchange = function(){checkSelectedOptions(element.childNodes[3].childNodes[0])};
@@ -105,6 +107,25 @@ function showFormularData(formular)
 
   formularDataElement.style.display = "block";
   document.getElementById("saveButtonAdmin").style.display = "block";
+}
+
+function fillRadioButtonLabels(arrayRadioButton, parentDiv)
+{
+  if(arrayRadioButton.length>1)
+   {
+    parentDiv.childNodes[2].childNodes[arrayRadioButton.length-2].setAttribute("selected", true);
+    setNumberOfRadioLabels(parentDiv, arrayRadioButton.length);
+    fillRadioButtonInputs(arrayRadioButton, parentDiv.getElementsByTagName("input"));
+   }
+}
+
+function fillRadioButtonInputs(arrayRadioButton, arrayInputs)
+{
+  var i;
+  for(i=0; i<arrayRadioButton.length; i++)
+  {
+    arrayInputs[i].setAttribute("value", arrayRadioButton[i]);
+  }
 }
 
 function checkSelectedOptions(selectType)
@@ -126,6 +147,7 @@ function checkSelectedOptions(selectType)
     var ws = document.createTextNode("  ");
     selectType.parentElement.appendChild(ws);
     selectType.parentElement.appendChild(selectNumberRadioButtons);
+
 
     setNumberOfRadioLabels(selectType.parentElement, selectNumberRadioButtons.value);
 
@@ -344,7 +366,7 @@ function getFormularTemplateFromFields()
   for(i=0; i<rowsArray.length; i++)
   {
     var labelName = rowsArray[i].childNodes[1].value;
-    var typeSelect = rowsArray[i].childNodes[3];
+    var typeSelect = rowsArray[i].childNodes[3].childNodes[0];
     var typeName = typeSelect.options[typeSelect.selectedIndex].text;
     var restrictionsSelect =  rowsArray[i].childNodes[5];
     var restrictionsName = restrictionsSelect.options[restrictionsSelect.selectedIndex].text;
@@ -453,49 +475,52 @@ function showFormularVersion(formularName, versionDataObject)
   var i;
   for(i=0; i<foundFormular.rows.length; i++)
   {
-    var rowDiv = createVersionRow(foundFormular, versionDataObject);
+    if(versionDataObject === -1)
+      var rowDiv = createVersionRow(foundFormular.rows[i], undefined);
+    else
+      var rowDiv = createVersionRow(foundFormular.rows[i], versionDataObject.versionData[i]);
     formularDataElement.appendChild(rowDiv);
   }
   document.getElementById("saveButtonForm").style.display = "block";
   formularDataElement.style.display = "block";
 }
 
-function createVersionRow(foundFormular, versionDataObject)
+function createVersionRow(foundRow, versionData)
 {
   var rowDiv =  document.createElement("div");
 
-  var elementField = createElementField(foundFormular.rows[i]);
+  var elementField = createElementField(foundRow);
   rowDiv.appendChild(elementField);
   rowDiv.innerHTML += " &nbsp; ";
 
-  var labelField = createLabelField(foundFormular);
-  if(versionDataObject !== -1)
-    fillLabelFieldWithData(labelField, versionDataObject.versionData[i]);
+  var labelField = createLabelField(foundRow);
+  if(versionData !== undefined)
+    fillLabelFieldWithData(labelField, versionData);
   rowDiv.appendChild(labelField);
 
   return rowDiv;
 }
 
-function createElementField(formular)
+function createElementField(foundRow)
 {
   var elementField;
-  if(formular.restrictions === "Mandatory")
-    elementField = document.createTextNode(formular.label + "*:");
+  if(foundRow.restrictions === "Mandatory")
+    elementField = document.createTextNode(foundRow.label + "*:");
   else
-    elementField = document.createTextNode(formular.label + ":");
+    elementField = document.createTextNode(foundRow.label + ":");
   return elementField;
 }
 
-function createLabelField(foundFormular)
+function createLabelField(foundRow)
 {
   var labelField;
-  if(foundFormular.rows[i].type === "TextBox")
+  if(foundRow.type === "TextBox")
   {
     labelField = document.createElement("input");
     labelField.setAttribute("type", "text");
     labelField.setAttribute("value", "");
   }
-  else if(foundFormular.rows[i].type === "CheckBox")
+  else if(foundRow.type === "CheckBox")
   {
     labelField = document.createElement("input");
     labelField.setAttribute("type", "checkbox");
@@ -503,6 +528,7 @@ function createLabelField(foundFormular)
   }
   else
   {
+    labelField = document.createElement("input");
     //za radiobutton
   }
   return labelField;
