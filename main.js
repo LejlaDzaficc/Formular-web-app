@@ -347,15 +347,14 @@ function saveFormularAdmin()
       {
         deleteInvalidVersions(foundFormular.name);
         updateFormular(formular);
+        alert("Formular template '" + formular.name + "' has been successfully updated!");
       }
     }
-      // TODO: tell user that formular is saved
   }
   else
   {
     insertFormular(formular);
-    
-    // TODO: tell user that formular is saved
+    alert("Formular template '" + formular.name + "' has been successfully saved!");
   }
   console.log(data);
 }
@@ -367,6 +366,12 @@ function getFormularTemplateFromFields()
     name: document.getElementById('search-box').value,
     rows:[]
    }
+
+  if(formular.name === "")
+  {
+    alert("Formular name needed!");
+    return undefined;
+  }
   
   var formularDataElement = document.getElementById("formularData");
   var rowsArray = formularDataElement.childNodes;
@@ -489,14 +494,37 @@ function getFormularContentFromFields(formularName)
       field = rowsArray[i].childNodes[2].checked;
     else
     {
+      field = undefined;
       var arrayInputs = rowsArray[i].childNodes[2].getElementsByTagName("input");
       var j;
       for(j=0; j<arrayInputs.length; j++)
         if(arrayInputs[j].checked == true)
-          field = j;
-          
+          field = j;          
     }
-    array[i]= field;    
+    array[i]= field;   
+    
+    rowsArray[i].childNodes[2].className = "";
+    if((array[i] === "") && (foundFormular.rows[i].restrictions === "Mandatory"))
+    {
+      rowsArray[i].childNodes[2].className = "missing-input";
+      alert("This field can't be empty!");
+      return undefined;
+    }
+
+    if((foundFormular.rows[i].restrictions === "Numeric") && (isNaN(field)))
+    {
+      rowsArray[i].childNodes[2].className = "missing-input";
+      alert("This field must be numeric!");
+      return undefined;
+    }
+
+    if((field === undefined) && (foundFormular.rows[i].type === "RadioButton") && 
+       (foundFormular.rows[i].restrictions === "Mandatory"))
+       {
+        rowsArray[i].childNodes[2].className = "missing-input";
+        alert("You must choose one option!");
+        return undefined;
+       }
   }
 
   return array;

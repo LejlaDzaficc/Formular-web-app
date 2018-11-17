@@ -56,17 +56,19 @@ function loadFormularNames()
 function searchFormulars()
 {
   var formularName = document.getElementById('search-box').value;
-    var foundFormular = getFormulars().find(function(element){return element.name===formularName;});
-    if(foundFormular!==undefined)
-    {
-      showFormularData(foundFormular);
-    }
-    else
-    {
-      var formularDataElement = document.getElementById("formularData");
-      formularDataElement.innerHTML = "";
-      addRow();
-      document.getElementById("saveButtonAdmin").style.display = "block";
-      formularDataElement.style.display = "block"; 
-    }
+  if(formularName === "")
+    return;
+  var foundFormular = getFormulars().find(function(element){return element.name===formularName;});
+  if(foundFormular!==undefined)
+  {
+    showFormularData(foundFormular);
+  }
+  else
+  {
+    var formularDataElement = document.getElementById("formularData");
+    formularDataElement.innerHTML = "";
+    addRow();
+    document.getElementById("saveButtonAdmin").style.display = "block";
+    formularDataElement.style.display = "block"; 
+  }
 }
