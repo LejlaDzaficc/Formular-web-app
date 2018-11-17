@@ -24,7 +24,7 @@ function deactivateAllTabButtons()
   var tabButtons;
   tabButtons = document.getElementsByClassName("tabButtons");
   for (i = 0; i < tabButtons.length; i++) {
-      tabButtons[i].className = "tabButtons";//tabButtons[i].className.replace(" active", "");
+      tabButtons[i].className = "tabButtons";
   }
 }
 

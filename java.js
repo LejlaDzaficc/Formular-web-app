@@ -5,13 +5,13 @@ var data = {
       rows:[
         {
           label:"Label", 
-          type:"TextBox", 
+          type:"CheckBox", 
           radioButtonLabels:[], 
           restrictions:"Mandatory"
         },
         {
           label: "Label 2",
-          type: "CheckBox",
+          type: "RadioButton",
           radioButtonLabels:[], 
           restrictions:"None"
         }
@@ -94,15 +94,13 @@ function showFormularData(formular)
   for(i = 0; i < formular.rows.length; i++)
   {
     rowDiv = createRow(formular.rows[i], i);
-    console.log(rowDiv.childNodes);
     if(i === (formular.rows.length-1))
       setPlusButton(rowDiv);
     formularDataElement.appendChild(rowDiv);
-    
-   
+    checkSelectedOptions(rowDiv.childNodes[3].childNodes[0]);
   }
   formularDataElement.childNodes.forEach(function(element){
-    element.childNodes[3].onchange = function(){checkSelectedOptions(element.childNodes[3])};
+    element.childNodes[3].childNodes[0].onchange = function(){checkSelectedOptions(element.childNodes[3].childNodes[0])};
   });
 
   formularDataElement.style.display = "block";
@@ -111,11 +109,10 @@ function showFormularData(formular)
 
 function checkSelectedOptions(selectType)
 {
-  console.log("usloooo");
+  var selectNumberRadioButtons;
   if(selectType.options[selectType.selectedIndex].text === "RadioButton")
   {
-    console.log("ok, radio je");
-    var selectNumberRadioButtons = document.createElement("select");
+    selectNumberRadioButtons = document.createElement("select");
     for(i=2; i<=10; i++)
     {
       var option = document.createElement("option");
@@ -125,52 +122,91 @@ function checkSelectedOptions(selectType)
         option.setAttribute("selected", true);
       selectNumberRadioButtons.appendChild(option);
     }
-    selectType.parentElement.insertBefore(selectNumberRadioButtons, selectType.parentElement.childNodes[4]);
+
     var ws = document.createTextNode("  ");
-    selectType.parentElement.insertBefore(ws, selectType.parentElement.childNodes[4]);
+    selectType.parentElement.appendChild(ws);
+    selectType.parentElement.appendChild(selectNumberRadioButtons);
 
-   /* var labelField1 = document.createElement("input");
-    labelField1.setAttribute("type", "text");
-    labelField1.setAttribute("value", "");
-    selectType.parentElement.appendChild(labelField1);
-    console.log(selectType.parentElement.childNodes);
-    */
+    setNumberOfRadioLabels(selectType.parentElement, selectNumberRadioButtons.value);
 
+    selectNumberRadioButtons.onchange = function(){checkSS(selectNumberRadioButtons)};
   }
   else
   {
-    if(selectType.parentElement.childNodes[5].options[0].value == "2")
+    if(selectType.parentElement.childNodes.length > 1)
     {
-      selectType.parentElement.removeChild(selectType.parentElement.childNodes[4]);
-      selectType.parentElement.removeChild(selectType.parentElement.childNodes[4]);
-    }
-      
+      var i;
+      for(i=selectType.parentElement.childNodes.length-1; i>0; i--)
+        selectType.parentElement.removeChild(selectType.parentElement.childNodes[i]);
+    } 
   }
+}
 
+function setNumberOfRadioLabels(parentDiv, selectedValue)
+{
+  var i;
+  if(parentDiv.childNodes.length>3)
+    for(i=parentDiv.childNodes.length-1; i>2; i--)
+    {
+      parentDiv.removeChild(parentDiv.childNodes[i]);
+    }
+  
+  for(i=0; i<selectedValue; i++)
+  {
+    var newLine = document.createElement("br");
+    var labelField = document.createElement("input");
+    labelField.setAttribute("type", "text");
+    labelField.setAttribute("value", " ");
+    labelField.style.width = "140px";
+    labelField.style.marginTop = "2px";
+    parentDiv.appendChild(newLine);
+    parentDiv.appendChild(labelField);
+  }
+}
+
+
+function checkSS(selectNumberRadioButtons)
+{
+  setNumberOfRadioLabels(selectNumberRadioButtons.parentElement, selectNumberRadioButtons.value);
 }
 
 function createRow(row, rowIndex)
 {
   var rowDiv = document.createElement("div");
+  rowDiv.style.cssFloat = "left";
+  rowDiv.style.marginTop = "5px";
 
-  var elementLabel = document.createTextNode("Element " + (rowIndex+1));
+  var elementLabel = document.createElement("span");
+  elementLabel.innerHTML = "Element " + (rowIndex+1) + " &nbsp; ";
+  elementLabel.style.marginTop = "3px";
+  elementLabel.style.cssFloat = "left";
   rowDiv.appendChild(elementLabel);
-  rowDiv.innerHTML += " &nbsp; ";
 
   var labelField = document.createElement("input");
   labelField.setAttribute("type", "text");
   labelField.setAttribute("value", row.label);
+  labelField.style.cssFloat = "left";
   rowDiv.appendChild(labelField);
-  rowDiv.innerHTML += " &nbsp; ";
 
-  var selectType = createSelectType(row, rowIndex);
-  //console.log(selectType);
-  //selectType.onchange = function(){checkSelectedOptions(this)};
-  //selectType.onchange = console.log("za konzolu zadnje");
-  rowDiv.appendChild(selectType);
-  rowDiv.innerHTML += " &nbsp; ";
+  var blankSpace1 = document.createElement("span");
+  blankSpace1.innerHTML = " &nbsp; &nbsp;";
+  blankSpace1.style.cssFloat = "left";
+  rowDiv.appendChild(blankSpace1);
+  
+  var selectType = createSelectType(row);
+  var selectDiv = document.createElement("div");
+  selectDiv.style.cssFloat = "left";
+  selectDiv.style.display = "inline-block";
+  selectDiv.appendChild(selectType);
+  rowDiv.appendChild(selectDiv);
+ 
+  var blankSpace2 = document.createElement("span");
+  blankSpace2.innerHTML = " &nbsp; &nbsp;";
+  blankSpace2.style.cssFloat = "left";
+  rowDiv.appendChild(blankSpace2);
   
   var selectRestrictions = createSelectRestrictions(row);
+  selectRestrictions.style.cssFloat = "left";
   rowDiv.appendChild(selectRestrictions);
 
   return rowDiv;
@@ -178,10 +214,9 @@ function createRow(row, rowIndex)
 
 
 
-function createSelectType(row, index) 
+function createSelectType(row) 
 {
   var selectType = document.createElement("select");
-  selectType.id = "id"+ index;
 
   var option1Type = document.createElement("option");
   option1Type.value = "TextBox";
@@ -198,14 +233,8 @@ function createSelectType(row, index)
   else if(row.type==="CheckBox")
     option2Type.setAttribute("selected", true);
   else
-  {
     option3Type.setAttribute("selected", true);
 
-  }
-   
-  //selectType.setAttribute("onchange", checkSelectedOptions(selectType));
-  //selectType.onchange = function(){checkSelectedOptions(selectType, index)};
-  //selectType.addEventListener("change", checkSelectedOptions(selectType));
   selectType.appendChild(option1Type);
   selectType.appendChild(option2Type);
   selectType.appendChild(option3Type);
@@ -250,7 +279,6 @@ function setPlusButton(parentDiv)
 function addRow()
 {
   var formularDataElement = document.getElementById("formularData");
-
   var emptyRow = 
   {
     label: "",
@@ -258,13 +286,11 @@ function addRow()
     radioButtonLabels: [],
     restrictions: "None"
   };
+
   var rowDiv = createRow(emptyRow, formularDataElement.childNodes.length);
-
   movePlusButtonToLastRow(rowDiv);
-  
   formularDataElement.appendChild(rowDiv); 
-  rowDiv.childNodes[3].onchange = function(){checkSelectedOptions(rowDiv.childNodes[3])};
-
+  rowDiv.childNodes[3].childNodes[0].onchange = function(){checkSelectedOptions(rowDiv.childNodes[3].childNodes[0])};
 }
 
 function movePlusButtonToLastRow(rowDiv)
@@ -405,10 +431,6 @@ function getFormularContentFromFields(formularName)
 }
 
 
-
-
-
-
 function loadFormular(formularName, version)
 {
   var foundVersion = getVersions().find(function(element){return (element.version === version) && (element.formularName===formularName);});
@@ -423,14 +445,12 @@ function loadFormular(formularName, version)
   }
 }
 
-
-
-
 function showFormularVersion(formularName, versionDataObject)
 {
   var formularDataElement = document.getElementById("formularVersionData");
   var foundFormular = data.formulars.find(function(element){return element.name === formularName;});
   formularDataElement.innerHTML = "";
+  var i;
   for(i=0; i<foundFormular.rows.length; i++)
   {
     var rowDiv = createVersionRow(foundFormular, versionDataObject);
