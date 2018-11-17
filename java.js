@@ -365,16 +365,27 @@ function getFormularTemplateFromFields()
   var rowsArray = formularDataElement.childNodes;
   for(i=0; i<rowsArray.length; i++)
   {
+    var arrayInputs, tempArray = [];
     var labelName = rowsArray[i].childNodes[1].value;
     var typeSelect = rowsArray[i].childNodes[3].childNodes[0];
     var typeName = typeSelect.options[typeSelect.selectedIndex].text;
+    if(typeName === "RadioButton")
+    {
+      var j;
+      arrayInputs = rowsArray[i].childNodes[3].getElementsByTagName("input");
+      console.log(arrayInputs);
+      for(j=0; j<arrayInputs.length; j++)
+      {
+        tempArray.push(arrayInputs[j].value);
+      }
+    }
     var restrictionsSelect =  rowsArray[i].childNodes[5];
     var restrictionsName = restrictionsSelect.options[restrictionsSelect.selectedIndex].text;
     formular.rows.push(
       {
         label: labelName,
         type: typeName,
-        radioButtonLabels:[],
+        radioButtonLabels: tempArray,
         restrictions: restrictionsName
       }
     );
@@ -390,7 +401,18 @@ function isFormularUpdated(foundFormular, formular)
       if((foundFormular.rows[i].label !== formular.rows[i].label) ||
         (foundFormular.rows[i].type !== formular.rows[i].type) ||
         (foundFormular.rows[i].restrictions !== formular.rows[i].restrictions))
-            return true; 
+            return true;
+      if(foundFormular.rows[i].radioButtonLabels.length!= formular.rows[i].radioButtonLabels.length)
+        return true;
+      else
+      {
+        var j;
+        for(j=0; j<formular.rows[i].radioButtonLabels.length; j++)
+        {
+          if(formular.rows[i].radioButtonLabels[j]!= foundFormular.rows[i].radioButtonLabels[j])
+           return true;
+        }
+      }
     }
   else
     return true;
