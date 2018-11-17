@@ -5,7 +5,7 @@ var data = {
       rows:[
         {
           label:"Label", 
-          type:"CheckBox", 
+          type:"TextBox", 
           radioButtonLabels:[], 
           restrictions:"Mandatory"
         },
@@ -39,14 +39,16 @@ var data = {
     [
       {
         version: "4",
-        formularName: "formular2",
+        formularName: "formular1",
         versionData: 
           [
-            "lejla", true
+            "lejla", 1
           ]
       }
     ]
 };
+
+var radioButtonGroupID = 1;
 
 function getFormulars()
 {
@@ -231,6 +233,8 @@ function createRow(row, rowIndex)
   selectRestrictions.style.cssFloat = "left";
   rowDiv.appendChild(selectRestrictions);
 
+  rowDiv.style.clear = "both";
+
   return rowDiv;
 }
 
@@ -331,8 +335,10 @@ function removeOldPlusButton()
 function saveFormularAdmin()
 {
   var formular = getFormularTemplateFromFields();
+  if(formular === undefined)
+    return;
   var foundFormular = getFormulars().find(function(element){return element.name===formular.name;});
-  
+ 
   if(foundFormular !== undefined)
   {
     if (isFormularUpdated(foundFormular, formular))
@@ -361,6 +367,7 @@ function getFormularTemplateFromFields()
     name: document.getElementById('search-box').value,
     rows:[]
    }
+  
   var formularDataElement = document.getElementById("formularData");
   var rowsArray = formularDataElement.childNodes;
   for(i=0; i<rowsArray.length; i++)
@@ -381,6 +388,16 @@ function getFormularTemplateFromFields()
     }
     var restrictionsSelect =  rowsArray[i].childNodes[5];
     var restrictionsName = restrictionsSelect.options[restrictionsSelect.selectedIndex].text;
+
+    var label = rowsArray[i].childNodes[1];
+    label.className = "";
+    if(labelName === "")
+    {
+      label.className = "missing-input";
+      alert("You need input something in 'Element " + (i+1) + "' field!");
+      return undefined;
+    }
+     
     formular.rows.push(
       {
         label: labelName,
@@ -408,10 +425,8 @@ function isFormularUpdated(foundFormular, formular)
       {
         var j;
         for(j=0; j<formular.rows[i].radioButtonLabels.length; j++)
-        {
           if(formular.rows[i].radioButtonLabels[j]!= foundFormular.rows[i].radioButtonLabels[j])
            return true;
-        }
       }
     }
   else
@@ -432,8 +447,15 @@ function saveFormularForm()
   var foundVersion = getVersions().find(function(element){return (element.version === version) && (element.formularName===formularName);});
   var array = getFormularContentFromFields(formularName);
 
+  if(array=== undefined)
+    return;
+
+    console.log(array)
   if(version === "")
-    return; //TODO ispisat da treba verzija
+  {
+    alert("No version chosen!");
+    return;
+  }
   if(foundVersion !== undefined)
   {
     updateVersion(version, formularName, array);
@@ -459,16 +481,22 @@ function getFormularContentFromFields(formularName)
 
   for(i=0; i<rowsArray.length; i++)
   {
+    console.log(rowsArray[i].childNodes)
     var field;
     if(foundFormular.rows[i].type === "TextBox")
-      field = rowsArray[i].childNodes[1].value;
+      field = rowsArray[i].childNodes[2].value;
     else if(foundFormular.rows[i].type === "CheckBox")
-      field = rowsArray[i].childNodes[1].checked;
+      field = rowsArray[i].childNodes[2].checked;
     else
     {
-      //za radiobutton
+      var arrayInputs = rowsArray[i].childNodes[2].getElementsByTagName("input");
+      var j;
+      for(j=0; j<arrayInputs.length; j++)
+        if(arrayInputs[j].checked == true)
+          field = j;
+          
     }
-    array[i]= field;
+    array[i]= field;    
   }
 
   return array;
@@ -512,24 +540,32 @@ function createVersionRow(foundRow, versionData)
   var rowDiv =  document.createElement("div");
 
   var elementField = createElementField(foundRow);
+  elementField.style.cssFloat = "left";
   rowDiv.appendChild(elementField);
-  rowDiv.innerHTML += " &nbsp; ";
+
+  var blankSpace = document.createElement("span");
+  blankSpace.innerHTML = " &nbsp; ";
+  blankSpace.style.cssFloat = "left";
+  rowDiv.appendChild(blankSpace);
 
   var labelField = createLabelField(foundRow);
+  labelField.style.cssFloat = "left";
   if(versionData !== undefined)
     fillLabelFieldWithData(labelField, versionData);
   rowDiv.appendChild(labelField);
+
+  rowDiv.style.clear = "both";
 
   return rowDiv;
 }
 
 function createElementField(foundRow)
 {
-  var elementField;
+  var elementField = document.createElement("span");
   if(foundRow.restrictions === "Mandatory")
-    elementField = document.createTextNode(foundRow.label + "*:");
+    elementField.innerHTML = foundRow.label + "*:";
   else
-    elementField = document.createTextNode(foundRow.label + ":");
+    elementField.innerHTML = foundRow.label + ":";
   return elementField;
 }
 
@@ -550,8 +586,19 @@ function createLabelField(foundRow)
   }
   else
   {
-    labelField = document.createElement("input");
-    //za radiobutton
+    radioButtonGroupID++;
+    var i;
+    labelField = document.createElement("div");
+    labelField.style.display = "inline-block";
+    for(i=0; i<foundRow.radioButtonLabels.length; i++)
+    {
+      var radioButton = document.createElement("input");
+      radioButton.setAttribute("type", "radio");
+      radioButton.setAttribute("value", "");
+      radioButton.name = radioButtonGroupID;
+      labelField.appendChild(radioButton);
+      labelField.innerHTML += foundRow.radioButtonLabels[i] + "</br>";
+    }
   }
   return labelField;
 }
@@ -560,6 +607,11 @@ function fillLabelFieldWithData(labelField, value)
 {
   if(typeof value == "boolean")
     labelField.checked = value;
+  else if(typeof value == "string")
+    labelField.setAttribute("value", value); 
   else
-    labelField.setAttribute("value", value);  
+  {
+    var arrayInputs = labelField.getElementsByTagName("input");
+    arrayInputs[value].checked = true;    
+  } 
 }

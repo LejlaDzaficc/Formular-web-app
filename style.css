@@ -124,3 +124,8 @@
 {
   width: 50px;
 }
+
+.missing-input
+{
+  border: solid red 2px;
+}
