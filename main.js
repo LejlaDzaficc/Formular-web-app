@@ -408,6 +408,13 @@ function getFormularTemplateFromFields()
       console.log(arrayInputs);
       for(j=0; j<arrayInputs.length; j++)
       {
+        arrayInputs[j].className = "";
+        if(arrayInputs[j].value === " " || arrayInputs[j].value === "")
+          { 
+            arrayInputs[j].className = "missing-input";
+            alert("Radio button labels can't be empty!");
+            return undefined;
+          }
         tempArray.push(arrayInputs[j].value);
       }
     }
@@ -419,7 +426,7 @@ function getFormularTemplateFromFields()
     if(labelName === "")
     {
       label.className = "missing-input";
-      alert("You need input something in 'Element " + (i+1) + "' field!");
+      alert("You need to input something in 'Element " + (i+1) + "' field!");
       return undefined;
     }
      
@@ -493,8 +500,8 @@ function saveFormularForm()
       formularName: formularName,
       versionData: array
     });
-    
   }
+  alert("Formular '" + formularName + "' has been successfully saved under version '" + version + "'!");
 }
 
 function getFormularContentFromFields(formularName)
@@ -546,7 +553,8 @@ function getFormularContentFromFields(formularName)
         return undefined;
        }
     
-    if((field === false) && (foundFormular.rows[i].type === "CheckBox"))
+    if((field === false) && (foundFormular.rows[i].type === "CheckBox") &&
+       (foundFormular.rows[i].restrictions === "Mandatory"))
     {
       rowsArray[i].childNodes[2].className = "missing-checkbox";
       alert("This field must be checked!");
@@ -599,7 +607,7 @@ function createVersionRow(foundRow, versionData)
   rowDiv.appendChild(elementField);
 
   var blankSpace = document.createElement("span");
-  blankSpace.innerHTML = " &nbsp; ";
+  blankSpace.innerHTML = " &nbsp; &nbsp; &nbsp;";
   blankSpace.style.cssFloat = "left";
   rowDiv.appendChild(blankSpace);
 
@@ -669,4 +677,11 @@ function fillLabelFieldWithData(labelField, value)
     var arrayInputs = labelField.getElementsByTagName("input");
     arrayInputs[value].checked = true;    
   } 
+}
+
+function hideFormularContent()
+{
+  var formularDataElement = document.getElementById("formularVersionData");
+  document.getElementById("saveButtonForm").style.display = "none";
+  formularDataElement.style.display = "none";
 }
