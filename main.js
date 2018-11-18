@@ -5,7 +5,7 @@ var data = {
       rows:[
         {
           label:"Label", 
-          type:"TextBox", 
+          type:"CheckBox", 
           radioButtonLabels:[], 
           restrictions:"Mandatory"
         },
@@ -101,15 +101,36 @@ function showFormularData(formular)
       setPlusButton(rowDiv);
     formularDataElement.appendChild(rowDiv);
     checkSelectedOptions(rowDiv.childNodes[3].childNodes[0]);
+    disableInvalidRestrictions(rowDiv.childNodes[5], rowDiv.childNodes[3].childNodes[0]);
     fillRadioButtonLabels(formular.rows[i].radioButtonLabels, rowDiv.childNodes[3]);
   }
   formularDataElement.childNodes.forEach(function(element){
-    element.childNodes[3].childNodes[0].onchange = function(){checkSelectedOptions(element.childNodes[3].childNodes[0])};
+    element.childNodes[3].childNodes[0].onchange = function(){
+      checkSelectedOptions(element.childNodes[3].childNodes[0]);
+      disableInvalidRestrictions(element.childNodes[5], element.childNodes[3].childNodes[0]);
+    };
   });
 
   formularDataElement.style.display = "block";
   document.getElementById("saveButtonAdmin").style.display = "block";
 }
+
+function disableInvalidRestrictions(selectRestrictions, selectType)
+{
+  if((selectType.value === "CheckBox") || (selectType.value === "RadioButton"))
+  {
+    selectRestrictions.options[0].disabled = false;
+    selectRestrictions.options[1].disabled = true;
+    selectRestrictions.options[2].disabled = false; 
+  }
+  else
+  {
+    selectRestrictions.options[0].disabled = false;
+    selectRestrictions.options[1].disabled = false;
+    selectRestrictions.options[2].disabled = false; 
+  }
+}
+
 
 function fillRadioButtonLabels(arrayRadioButton, parentDiv)
 {
@@ -145,14 +166,11 @@ function checkSelectedOptions(selectType)
         option.setAttribute("selected", true);
       selectNumberRadioButtons.appendChild(option);
     }
-
     var ws = document.createTextNode("  ");
     selectType.parentElement.appendChild(ws);
     selectType.parentElement.appendChild(selectNumberRadioButtons);
 
-
     setNumberOfRadioLabels(selectType.parentElement, selectNumberRadioButtons.value);
-
     selectNumberRadioButtons.onchange = function(){checkSS(selectNumberRadioButtons)};
   }
   else
@@ -316,7 +334,10 @@ function addRow()
   var rowDiv = createRow(emptyRow, formularDataElement.childNodes.length);
   movePlusButtonToLastRow(rowDiv);
   formularDataElement.appendChild(rowDiv); 
-  rowDiv.childNodes[3].childNodes[0].onchange = function(){checkSelectedOptions(rowDiv.childNodes[3].childNodes[0])};
+  rowDiv.childNodes[3].childNodes[0].onchange = function(){
+    checkSelectedOptions(rowDiv.childNodes[3].childNodes[0]);
+    disableInvalidRestrictions(rowDiv.childNodes[5], rowDiv.childNodes[3].childNodes[0]);
+  };
 }
 
 function movePlusButtonToLastRow(rowDiv)
@@ -356,7 +377,6 @@ function saveFormularAdmin()
     insertFormular(formular);
     alert("Formular template '" + formular.name + "' has been successfully saved!");
   }
-  console.log(data);
 }
 
 
@@ -525,6 +545,13 @@ function getFormularContentFromFields(formularName)
         alert("You must choose one option!");
         return undefined;
        }
+    
+    if((field === false) && (foundFormular.rows[i].type === "CheckBox"))
+    {
+      rowsArray[i].childNodes[2].className = "missing-checkbox";
+      alert("This field must be checked!");
+      return undefined;
+    }
   }
 
   return array;

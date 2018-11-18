@@ -129,3 +129,8 @@
 {
   border: solid red 2px;
 }
+
+.missing-checkbox
+{
+  outline: 2px solid red;
+}
