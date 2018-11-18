@@ -1,0 +1,1 @@
+var radioButtonGroupID = 1; //used to distinguish radio button groups
